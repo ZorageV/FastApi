@@ -1,33 +1,31 @@
-from random import randint
-import time
-from typing import Optional
-from fastapi import FastAPI, HTTPException, Response, status
-from fastapi.params import Body
+from fastapi import Depends, FastAPI, HTTPException, Response, status
 from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from .database import engine,SessionLocal
+from .database import engine,get_db
 from . import models
+from sqlalchemy.orm import Session
+
+from app import database
 
 models.Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI()
 
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 class Post(BaseModel):
     title: str
     content: str
     published: bool = True
 
-
+while True:
+    try:
+        conn = psycopg2.connect(host="localhost",database="fastapi",user="postgres",password="zorage",cursor_factory=RealDictCursor)
+        cursor = conn.cursor()
+        print("DB connected")
+        break
+    except Exception as error:
+        print("Connecting to DB failed")
 my_posts = [
     {
         "id": 1,
@@ -110,3 +108,9 @@ def update_post(id:int, post:Post):
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
         )
     return up_post
+
+
+@app.get("/sqlalchemy")
+def test_post(db : Session = Depends(get_db)):
+    posts = db.query(models.Post).all()
+    return {"Data" : posts}
