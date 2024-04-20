@@ -1,12 +1,13 @@
 from typing import List
 from fastapi import Depends, FastAPI, HTTPException, Response, status
-from fastapi.encoders import jsonable_encoder
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from .database import engine,get_db
 from . import models,schemas
 from sqlalchemy.orm import Session
 from app import database
+from . import utils
+
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -86,3 +87,14 @@ def update_post(id:int, updated_post:schemas.PostCreate,db : Session = Depends(g
 def test_post(db : Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     return {"Data" : posts}
+
+
+@app.post("/users",status_code=status.HTTP_201_CREATED,response_model=schemas.UserOut)
+def create_user(user : schemas.UserCrate,db : Session = Depends(get_db)):
+    #hashing the password
+    user.password =  utils.hash(user.password)
+    new_user = models.User(**(user.model_dump()))
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
