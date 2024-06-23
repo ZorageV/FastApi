@@ -1,5 +1,5 @@
 from turtle import pos
-from typing import List
+from typing import List, Optional
 from fastapi import Depends, FastAPI, HTTPException, Response, status, APIRouter
 from sqlalchemy.orm import Session
 from .. import models,schemas
@@ -12,8 +12,9 @@ router = APIRouter(prefix="/posts",tags=["posts"])
 
 
 @router.get("/",response_model=List[schemas.Post])
-def get_posts(db : Session = Depends(get_db),current_user = Depends(oauth2.get_current_user)):
-    posts = db.query(models.Post).filter(models.Post.user_id == current_user.id).all()
+def get_posts(db : Session = Depends(get_db),current_user = Depends(oauth2.get_current_user)
+              ,limit : int = 5 , skip : int = 0, search : str = ""):
+    posts = db.query(models.Post).filter(models.Post.user_id == current_user.id).limit(limit).offset(skip).all()
     if not posts:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"

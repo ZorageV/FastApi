@@ -12,14 +12,6 @@ class PostBase(BaseModel):
 class PostCreate(PostBase):
     pass
 
-class Post(PostBase):
-    id : int
-    created_at : datetime
-    user_id : Optional[int] 
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 class UserCrate(BaseModel):
     email : EmailStr
     password : str
@@ -28,7 +20,14 @@ class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id : int
     email : EmailStr
+    created_at : datetime
 
+class Post(PostBase):
+    id : int
+    created_at : datetime
+    user : UserOut
+
+    model_config = ConfigDict(from_attributes=True)
 
 class UserLogin(BaseModel):
     email : EmailStr

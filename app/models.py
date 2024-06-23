@@ -12,7 +12,7 @@ class Post(Base):
     created_at = Column(TIMESTAMP(timezone=False),nullable=False,server_default=text("NOW()"))
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
-    users = relationship("User", back_populates="posts")
+    user = relationship("User", back_populates="posts")
 
 class User(Base):
     __tablename__ = "users"
@@ -21,4 +21,4 @@ class User(Base):
     password = Column(String,nullable=False)
     created_at = Column(TIMESTAMP(timezone=False),nullable=False,server_default=text("NOW()"))
 
-    posts = relationship("Post", back_populates="users")
+    posts = relationship("Post", back_populates="user")
