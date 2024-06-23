@@ -14,6 +14,7 @@ def create_user(user : schemas.UserCrate,db : Session = Depends(get_db)):
     new_user = models.User(**(user.model_dump()))
     db.add(new_user)
     db.commit()
+    print(new_user)
     db.refresh(new_user)
     return new_user
 

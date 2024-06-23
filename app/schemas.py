@@ -5,6 +5,7 @@ from pydantic import BaseModel,ConfigDict, EmailStr
 class PostBase(BaseModel):
     title: str
     content: str
+    user_id : int
     published: bool = True
 
 
@@ -12,6 +13,10 @@ class PostCreate(PostBase):
     pass
 
 class Post(PostBase):
+    id : int
+    created_at : datetime
+    user_id : Optional[int] 
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -34,4 +39,4 @@ class Token(BaseModel):
     token_type : str
 
 class TokenData(BaseModel):
-    id : Optional[str] = None
+    id : Optional[int] = None
